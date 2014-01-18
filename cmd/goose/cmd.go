@@ -2,6 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"os"
+	"text/template"
 )
 
 // shamelessly snagged from the go tool
@@ -20,8 +23,35 @@ type Command struct {
 
 func (c *Command) Exec(args []string) {
 	c.Flag.Usage = func() {
-		// helpFunc(c, c.Name)
+		// c.Usage()
 	}
-	c.Flag.Parse(args)
+
+	help := c.Flag.Bool("help", false, "print help for this command")
+
+	err := c.Flag.Parse(args)
+	if err != nil {
+		fmt.Println("error parsing flags: ", err)
+		return
+	}
+
+	if *help {
+		c.PrintDetailedHelp()
+		return
+	}
+
 	c.Run(c, c.Flag.Args()...)
 }
+
+func (c *Command) PrintDetailedHelp() {
+	detailedTemplate.Execute(os.Stdout, c)
+}
+
+var detailedTemplate = template.Must(template.New("detailed-help").Parse(
+	` {{.Name}} usage:
+
+    $ goose {{.Name}} {{.Usage}}
+
+    {{.Summary}}
+
+    {{.Help}}
+  `))
