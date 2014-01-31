@@ -13,7 +13,7 @@ var statusCmd = &Command{
 	Name:    "status",
 	Usage:   "",
 	Summary: "dump the migration status for the current DB",
-	Help:    `status extended help here...`,
+	Help:    ``,
 	Run:     statusRun,
 }
 
@@ -23,7 +23,6 @@ type StatusData struct {
 }
 
 func statusRun(cmd *Command, args ...string) {
-
 	conf, err := dbConfFromFlags()
 	if err != nil {
 		log.Fatal(err)

@@ -13,7 +13,7 @@ var createCmd = &Command{
 	Name:    "create",
 	Usage:   "",
 	Summary: "Create the scaffolding for a new migration",
-	Help:    `create extended help here...`,
+	Help:    ``,
 	Run:     createRun,
 }
 

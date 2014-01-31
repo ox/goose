@@ -5,21 +5,20 @@ import (
 	"log"
 )
 
-var downTarget *int64
-
 var downCmd = &Command{
 	Name:    "down",
-	Usage:   "[--target=]",
+	Usage:   "[-to=]",
 	Summary: "Roll back the version by 1, or to a target migration",
-	Help:    `down extended help here...`,
+	Help:    ``,
 	Run:     downRun,
 }
 
 func init() {
-	downTarget = downCmd.Flag.Int64("target", -1, "the target migration to roll back to")
+	downCmd.Flag.Int64("to", -1, "the target migration to roll back to")
 }
 
 func downRun(cmd *Command, args ...string) {
+	to := cmd.GetFlagValue("to").(int64)
 
 	conf, err := dbConfFromFlags()
 	if err != nil {
@@ -31,14 +30,14 @@ func downRun(cmd *Command, args ...string) {
 		log.Fatal(err)
 	}
 
-	if *downTarget < 0 || *downTarget >= current {
-		*downTarget, err = goose.GetPreviousDBVersion(conf.MigrationsDir, current)
+	if to < 0 || to >= current {
+		to, err = goose.GetPreviousDBVersion(conf.MigrationsDir, current)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	if err = goose.RunMigrations(conf, conf.MigrationsDir, *downTarget); err != nil {
+	if err = goose.RunMigrations(conf, conf.MigrationsDir, to); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -42,6 +42,23 @@ Apply all available migrations.
     OK    002_next.sql
     OK    003_and_again.go
 
+It is also possible to apply all migrations up to, and including, a target migration.
+
+	$ goose -path db-sample up -to 2
+	goose: migrating db environment 'development', current version: 0, target: 2
+	OK    001_basics.sql
+	OK    002_next.sql
+
+The targeted migration will be last one run.
+
+	$ goose -path db-sample status
+	goose: status for environment 'development'
+	    Applied At                  Migration
+	    =======================================
+	    Fri Jan 31 18:51:27 2014 -- 001_basics.sql
+	    Fri Jan 31 18:51:27 2014 -- 002_next.sql
+	    Pending                  -- 003_and_again.go
+
 ## down
 
 Roll back a single migration from the current version.
@@ -49,6 +66,24 @@ Roll back a single migration from the current version.
     $ goose down
     goose: migrating db environment 'development', current version: 3, target: 2
     OK    003_and_again.go
+
+It is also possible to roll back to a specific migration with the `-to=` flag.
+
+	$ goose down -to 1
+	goose: migrating db environment 'development', current version: 3, target: 1
+	Hello from migration 3 Down!
+	OK    20130106222315_and_again.go
+	OK    002_next.sql
+
+The target will be the last active migration.
+
+	$ goose -path db-sample status
+	goose: status for environment 'development'
+	    Applied At                  Migration
+	    =======================================
+	    Sat Jan 18 01:56:16 2014 -- 001_basics.sql
+	    Pending                  -- 002_next.sql
+	    Pending                  -- 003_and_again.go
 
 ## redo
 
