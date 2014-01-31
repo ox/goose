@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ox/goose/lib/goose"
 	"os"
+	"os/exec"
 	"strings"
 	"text/template"
 )
@@ -47,13 +48,20 @@ func main() {
 		}
 	}
 
-	if cmd == nil {
+	ext, err := exec.LookPath("goose-" + name)
+
+	if cmd == nil && err != nil {
 		fmt.Printf("error: unknown command %q\n", name)
 		flag.Usage()
 		os.Exit(1)
+	} else if cmd == nil {
+		cmd := exec.Command(ext, strings.Join(args[1:], " "))
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	} else {
+		cmd.Exec(args[1:])
 	}
-
-	cmd.Exec(args[1:])
 }
 
 func usage() {
