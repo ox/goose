@@ -23,7 +23,6 @@ type StatusData struct {
 }
 
 func statusRun(cmd *Command, args ...string) {
-
 	conf, err := dbConfFromFlags()
 	if err != nil {
 		log.Fatal(err)

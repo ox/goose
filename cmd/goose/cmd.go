@@ -42,8 +42,22 @@ func (c *Command) Exec(args []string) {
 	c.Run(c, c.Flag.Args()...)
 }
 
+func (c *Command) GetFlagValue(key string) interface{} {
+	f := c.Flag.Lookup(key)
+	if f == nil {
+		return nil
+	}
+
+	g, ok := f.Value.(flag.Getter)
+	if !ok {
+		return nil
+	}
+	return g.Get()
+}
+
 func (c *Command) PrintDetailedHelp() {
 	detailedTemplate.Execute(os.Stdout, c)
+	c.Flag.PrintDefaults()
 }
 
 var detailedTemplate = template.Must(template.New("detailed-help").Parse(
@@ -53,5 +67,6 @@ var detailedTemplate = template.Must(template.New("detailed-help").Parse(
 
     {{.Summary}}
 
-    {{.Help}}
-  `))
+    Additional flags:
+
+`))

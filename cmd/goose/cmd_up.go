@@ -5,9 +5,6 @@ import (
 	"log"
 )
 
-// the target version to migrate down to
-var upTo *int64
-
 var upCmd = &Command{
 	Name:    "up",
 	Usage:   "[-to=]",
@@ -17,10 +14,20 @@ var upCmd = &Command{
 }
 
 func init() {
-	upTo = upCmd.Flag.Int64("to", -1, "the target migration to migrate to, default: latest")
+	upCmd.Flag.Int64("to", -1,
+		"the migration to migrate to, default: latest")
+	upCmd.Flag.Int64("target", -1,
+		"the id of the migration that you want to run")
+	upCmd.Flag.Bool("force", false,
+		"the migration will be reported as a success, even if it fails")
 }
 
 func upRun(cmd *Command, args ...string) {
+	to := cmd.GetFlagValue("to").(int64)
+	target := cmd.GetFlagValue("target").(int64)
+	force := cmd.GetFlagValue("force").(bool)
+
+	log.Println(to, target, force)
 
 	conf, err := dbConfFromFlags()
 	if err != nil {
@@ -32,11 +39,11 @@ func upRun(cmd *Command, args ...string) {
 		log.Fatal(err)
 	}
 
-	if *upTo > recent || *upTo < 0 {
-		*upTo = recent
+	if to > recent || to < 0 {
+		to = recent
 	}
 
-	if err := goose.RunMigrations(conf, conf.MigrationsDir, *upTo); err != nil {
+	if err := goose.RunMigrations(conf, conf.MigrationsDir, to); err != nil {
 		log.Fatal(err)
 	}
 }
