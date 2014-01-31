@@ -23,7 +23,7 @@ goose provides several commands to help manage your database schema.
 Create a new migration script.
 
     $ goose create AddSomeColumns
-    $ goose: created db/migrations/20130106093224_AddSomeColumns.go
+    goose: created db/migrations/20130106093224_AddSomeColumns.go
 
 Edit the newly created script to define the behavior of your migration.
 
@@ -37,44 +37,50 @@ You can also create an SQL migration:
 Apply all available migrations.
 
     $ goose up
-    $ goose: migrating db environment 'development', current version: 0, target: 3
-    $ OK    001_basics.sql
-    $ OK    002_next.sql
-    $ OK    003_and_again.go
+    goose: migrating db environment 'development', current version: 0, target: 3
+    OK    001_basics.sql
+    OK    002_next.sql
+    OK    003_and_again.go
 
 ## down
 
 Roll back a single migration from the current version.
 
     $ goose down
-    $ goose: migrating db environment 'development', current version: 3, target: 2
-    $ OK    003_and_again.go
+    goose: migrating db environment 'development', current version: 3, target: 2
+    OK    003_and_again.go
 
 ## redo
 
 Roll back the most recently applied migration, then run it again.
 
     $ goose redo
-    $ goose: migrating db environment 'development', current version: 3, target: 2
-    $ OK    003_and_again.go
-    $ goose: migrating db environment 'development', current version: 2, target: 3
-    $ OK    003_and_again.go
+    goose: migrating db environment 'development', current version: 3, target: 2
+    OK    003_and_again.go
+    goose: migrating db environment 'development', current version: 2, target: 3
+    OK    003_and_again.go
 
 ## status
 
 Print the status of all migrations:
 
     $ goose status
-    $ goose: status for environment 'development'
-    $   Applied At                  Migration
-    $   =======================================
-    $   Sun Jan  6 11:25:03 2013 -- 001_basics.sql
-    $   Sun Jan  6 11:25:03 2013 -- 002_next.sql
-    $   Pending                  -- 003_and_again.go
+    goose: status for environment 'development'
+      Applied At                  Migration
+      =======================================
+      Sun Jan  6 11:25:03 2013 -- 001_basics.sql
+      Sun Jan  6 11:25:03 2013 -- 002_next.sql
+      Pending                  -- 003_and_again.go
 
+## create-db
+
+Create the database specified for the current environment if it doesn't exist.
+
+	$ goose create-db
+	2014/01/18 12:25:33 no user= specified, defaulting to current user
+	2014/01/18 12:25:33 created goose-tester
 
 `goose -h` provides more detailed info on each command.
-
 
 # Migrations
 
@@ -159,7 +165,7 @@ A transaction is provided, rather than the DB instance directly, since goose als
 
 goose expects you to maintain a folder (typically called "db"), which contains the following:
 
-* a dbconf.yml file that describes the database configurations you'd like to use
+* a `dbconf.yml` file that describes the database configurations you'd like to use
 * a folder called "migrations" which contains .sql and/or .go scripts that implement your migrations
 
 You may use the `-path` option to specify an alternate location for the folder containing your config and migrations.
