@@ -6,18 +6,18 @@ import (
 )
 
 // the target version to migrate down to
-var upTarget *int64
+var upTo *int64
 
 var upCmd = &Command{
 	Name:    "up",
-	Usage:   "[--target=]",
+	Usage:   "[-to=]",
 	Summary: "Migrate the DB to the most recent version available, or until a target version",
-	Help:    `up extended help here...`,
+	Help:    ``,
 	Run:     upRun,
 }
 
 func init() {
-	upTarget = upCmd.Flag.Int64("target", -1, "the target migration to migrate to, default: latest")
+	upTo = upCmd.Flag.Int64("to", -1, "the target migration to migrate to, default: latest")
 }
 
 func upRun(cmd *Command, args ...string) {
@@ -32,11 +32,11 @@ func upRun(cmd *Command, args ...string) {
 		log.Fatal(err)
 	}
 
-	if *upTarget > recent || *upTarget < 0 {
-		*upTarget = recent
+	if *upTo > recent || *upTo < 0 {
+		*upTo = recent
 	}
 
-	if err := goose.RunMigrations(conf, conf.MigrationsDir, *upTarget); err != nil {
+	if err := goose.RunMigrations(conf, conf.MigrationsDir, *upTo); err != nil {
 		log.Fatal(err)
 	}
 }

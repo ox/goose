@@ -9,7 +9,7 @@ var redoCmd = &Command{
 	Name:    "redo",
 	Usage:   "",
 	Summary: "Re-run the latest migration",
-	Help:    `redo extended help here...`,
+	Help:    ``,
 	Run:     redoRun,
 }
 

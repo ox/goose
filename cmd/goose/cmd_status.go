@@ -13,7 +13,7 @@ var statusCmd = &Command{
 	Name:    "status",
 	Usage:   "",
 	Summary: "dump the migration status for the current DB",
-	Help:    `status extended help here...`,
+	Help:    ``,
 	Run:     statusRun,
 }
 
