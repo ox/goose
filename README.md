@@ -82,6 +82,10 @@ Create the database specified for the current environment if it doesn't exist.
 
 `goose -h` provides more detailed info on each command.
 
+# Extending Goose
+
+If the command supplied is not a core goose command, goose will look for executables in `$PATH` prefixed with `goose-`. This way, it is possible to extend goose's capabilities without having to recompile the binary or to use Go to build on top of goose. It also makes it possible to cater to your organization's specific db migration requirements without adding burden and unnecessary complexity to goose itself.
+
 # Migrations
 
 goose supports migrations written in SQL or in Go.
