@@ -2,6 +2,7 @@ package goose
 
 import (
 	"database/sql"
+	"github.com/mattn/go-sqlite3"
 )
 
 // SqlDialect abstracts the details of specific SQL dialects
@@ -19,6 +20,8 @@ func dialectByName(d string) SqlDialect {
 		return &PostgresDialect{}
 	case "mysql":
 		return &MySqlDialect{}
+	case "sqlite3":
+		return &Sqlite3Dialect{}
 	}
 
 	return nil
@@ -30,7 +33,7 @@ func dialectByName(d string) SqlDialect {
 
 type PostgresDialect struct{}
 
-func (pg *PostgresDialect) createVersionTableSql() string {
+func (pg PostgresDialect) createVersionTableSql() string {
 	return `CREATE TABLE goose_db_version (
             	id serial NOT NULL,
                 version_id bigint NOT NULL,
@@ -40,11 +43,11 @@ func (pg *PostgresDialect) createVersionTableSql() string {
             );`
 }
 
-func (pg *PostgresDialect) insertVersionSql() string {
+func (pg PostgresDialect) insertVersionSql() string {
 	return "INSERT INTO goose_db_version (version_id, is_applied) VALUES ($1, $2);"
 }
 
-func (pg *PostgresDialect) dbVersionQuery(db *sql.DB) (*sql.Rows, error) {
+func (pg PostgresDialect) dbVersionQuery(db *sql.DB) (*sql.Rows, error) {
 	rows, err := db.Query("SELECT version_id, is_applied from goose_db_version ORDER BY id DESC")
 
 	// XXX: check for postgres specific error indicating the table doesn't exist.
@@ -63,7 +66,7 @@ func (pg *PostgresDialect) dbVersionQuery(db *sql.DB) (*sql.Rows, error) {
 
 type MySqlDialect struct{}
 
-func (m *MySqlDialect) createVersionTableSql() string {
+func (m MySqlDialect) createVersionTableSql() string {
 	return `CREATE TABLE goose_db_version (
                 id serial NOT NULL,
                 version_id bigint NOT NULL,
@@ -73,11 +76,11 @@ func (m *MySqlDialect) createVersionTableSql() string {
             );`
 }
 
-func (m *MySqlDialect) insertVersionSql() string {
+func (m MySqlDialect) insertVersionSql() string {
 	return "INSERT INTO goose_db_version (version_id, is_applied) VALUES (?, ?);"
 }
 
-func (m *MySqlDialect) dbVersionQuery(db *sql.DB) (*sql.Rows, error) {
+func (m MySqlDialect) dbVersionQuery(db *sql.DB) (*sql.Rows, error) {
 	rows, err := db.Query("SELECT version_id, is_applied from goose_db_version ORDER BY id DESC")
 
 	// XXX: check for mysql specific error indicating the table doesn't exist.
@@ -87,5 +90,34 @@ func (m *MySqlDialect) dbVersionQuery(db *sql.DB) (*sql.Rows, error) {
 		return nil, ErrTableDoesNotExist
 	}
 
+	return rows, err
+}
+
+////////////////////////////
+// sqlite3
+////////////////////////////
+
+type Sqlite3Dialect struct{}
+
+func (m Sqlite3Dialect) createVersionTableSql() string {
+	return `CREATE TABLE goose_db_version (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                version_id INTEGER NOT NULL,
+                is_applied INTEGER NOT NULL,
+                tstamp TIMESTAMP DEFAULT (datetime('now'))
+            );`
+}
+
+func (m Sqlite3Dialect) insertVersionSql() string {
+	return "INSERT INTO goose_db_version (version_id, is_applied) VALUES (?, ?);"
+}
+
+func (m Sqlite3Dialect) dbVersionQuery(db *sql.DB) (*sql.Rows, error) {
+	rows, err := db.Query("SELECT version_id, is_applied from goose_db_version ORDER BY id DESC")
+
+	switch err.(type) {
+	case sqlite3.Error:
+		return nil, ErrTableDoesNotExist
+	}
 	return rows, err
 }
